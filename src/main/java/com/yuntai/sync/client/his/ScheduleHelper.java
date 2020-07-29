@@ -1,7 +1,7 @@
 package com.yuntai.sync.client.his;
 
-import com.yuntai.sync.api.access.model.AccessDept;
-import com.yuntai.sync.api.access.model.AccessSch;
+import com.yuntai.sync.api.access.model.jyt.AccessDeptJyt;
+import com.yuntai.sync.api.access.model.jyt.AccessSchJyt;
 import com.yuntai.sync.client.his.util.HisResultBean;
 import com.yuntai.sync.client.his.util.HisWebserviceUtil;
 import com.yuntai.sync.client.his.util.YuntaiDateUtils;
@@ -22,17 +22,17 @@ import java.util.*;
  * @date 2019/11/13 11:06
  */
 public class ScheduleHelper {
-    private static final String HOS_CODE = "T110481";
+    private static final String HOS_CODE = "T107871";
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(DoctorHelper.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ScheduleHelper.class);
 
     private static final String SCHEDULE_URL = "/reg/list";
 
-    public static List<AccessSch> getScheduleList(List<AccessDept> deptList, Integer schDays, String hisWebserviceUrl) {
-        List<AccessSch> schList = new ArrayList<>();
+    public static List<AccessSchJyt> getScheduleList(List<AccessDeptJyt> deptList, Integer schDays, String hisWebserviceUrl) {
+        List<AccessSchJyt> schList = new ArrayList<>();
         String from = YuntaiDateUtils.getFormatDate(new Date(), "yyyyMMdd");
         String to = YuntaiDateUtils.getSpecifiedDayAfter(new Date(), schDays, Calendar.DAY_OF_MONTH, "yyyyMMdd");
-        for (AccessDept accessDept : deptList) {
+        for (AccessDeptJyt accessDept : deptList) {
             String[] deptIdArgs = accessDept.getAccessDeptId().split("\\|");
             String dept_code1 = deptIdArgs[0];
             String dept_code2 = deptIdArgs[1];
@@ -66,7 +66,7 @@ public class ScheduleHelper {
                 String day = dv.elementTextTrim("day");
                 Element registry_list = dv.element("registry_list");
                 Iterator<Element> it = registry_list.elementIterator("registry");
-                AccessSch schedule = null;
+                AccessSchJyt schedule = null;
                 while (it.hasNext()) {
                     Element registry = it.next();
                     // 医院定制扩展字段，将会在锁号的时候传给 HIS 系统，可以 HIS 系统携带一些额外字段
@@ -85,7 +85,7 @@ public class ScheduleHelper {
                     String remark = registry.elementTextTrim("remark");
 
                     //从his号源信息获取排班数据
-                    schedule = new AccessSch();
+                    schedule = new AccessSchJyt();
                     schedule.setSchDate(YuntaiDateUtils.parseDate(day, "yyyyMMdd"));
                     schedule.setAccessSchId(ext_param);
                     schedule.setAccessDeptId(accessDept.getAccessDeptId());
@@ -130,7 +130,7 @@ public class ScheduleHelper {
                     schedule.setIsExpert(1);
                     String fb1 =
                             day + "|" + reg_half + "|" + titleType + "|" + dept_code1 + "|" + dept_code2 + "|" + doctorCode;
-                    schedule.setFb1(fb1);
+                    schedule.setFb1(accessDept.getAccessDeptId());
                     schList.add(schedule);
                 }
             }

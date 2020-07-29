@@ -1,17 +1,14 @@
 package com.yuntai.sync.client.his;
 
-import com.yuntai.sync.api.access.model.AccessDept;
-import com.yuntai.sync.api.access.model.AccessDvi;
-import com.yuntai.sync.api.access.model.AccessSch;
+import com.yuntai.sync.api.access.model.jyt.AccessDeptJyt;
+import com.yuntai.sync.api.access.model.jyt.AccessDviJyt;
 import com.yuntai.sync.client.his.util.HisResultBean;
 import com.yuntai.sync.client.his.util.HisWebserviceUtil;
 import com.yuntai.sync.client.his.util.YuntaiDateUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.dom4j.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.math.BigDecimal;
 import java.util.*;
 
 /**
@@ -23,17 +20,17 @@ import java.util.*;
  * @date 2019/11/13 11:06
  */
 public class DviHelper {
-    private static final String HOS_CODE = "T110481";
+    private static final String HOS_CODE = "T107871";
 
     private static final Logger logger = LoggerFactory.getLogger(DoctorHelper.class);
 
     private static final String DVI_URL = "/doctors/schedule";
 
-    public static List<AccessDvi> getDviList(List<AccessDept> deptList, Integer schDays, String hisWebserviceUrl) {
-        List<AccessDvi> dviList = new ArrayList<>();
+    public static List<AccessDviJyt> getDviList(List<AccessDeptJyt> deptList, Integer schDays, String hisWebserviceUrl) {
+        List<AccessDviJyt> dviList = new ArrayList<>();
         String from = YuntaiDateUtils.getFormatDate(new Date(), "yyyyMMdd");
         String to = YuntaiDateUtils.getSpecifiedDayAfter(new Date(), schDays, Calendar.DAY_OF_MONTH, "yyyyMMdd");
-        for (AccessDept accessDept : deptList) {
+        for (AccessDeptJyt accessDept : deptList) {
             String[] deptIdArgs = accessDept.getAccessDeptId().split("\\|");
             String dept_code1 = deptIdArgs[0];
             String dept_code2 = deptIdArgs[1];
@@ -70,14 +67,14 @@ public class DviHelper {
                     continue;
                 }
                 Iterator<Element> it = date_list.elementIterator("date");
-                AccessDvi accessDvi = null;
+                AccessDviJyt accessDvi = null;
                 while (it.hasNext()) {
                     Element element = it.next();
                     String reg_date = element.elementTextTrim("date");
                     String reg_half = element.elementTextTrim("type");
 
                     //从his号源信息获取出诊信息
-                    accessDvi = new AccessDvi();
+                    accessDvi = new AccessDviJyt();
                     accessDvi.setDocName(doctorName);
                     accessDvi.setAccessDocId(doctorCode);
                     accessDvi.setAccessDeptId(accessDept.getAccessDeptId());

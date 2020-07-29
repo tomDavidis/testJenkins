@@ -1,6 +1,6 @@
 package com.yuntai.sync.client.his;
 
-import com.yuntai.sync.api.access.model.med.AccessDept;
+import com.yuntai.sync.api.access.model.jyt.AccessDeptJyt;
 import com.yuntai.sync.client.his.util.HisResultBean;
 import com.yuntai.sync.client.his.util.HisWebserviceUtil;
 import org.apache.commons.lang3.StringUtils;
@@ -22,10 +22,10 @@ public class DeptHelper {
 
     public static final String DEPT_URL = "/depts";
 
-    private static final String HOS_CODE = "T110481";
+    private static final String HOS_CODE = "T107871";
 
-    public static List<AccessDept> getDeptListFromHos(String hisWebserviceUrl) {
-        String requestXML = "<hos_code>T110481</hos_code>";
+    public static List<AccessDeptJyt> getDeptListFromHos(String hisWebserviceUrl) {
+        String requestXML = "<hos_code>" + HOS_CODE + "</hos_code>";
         HisResultBean hisResultBean = HisWebserviceUtil.getResponse(hisWebserviceUrl + DEPT_URL, requestXML, 30);
         if (!hisResultBean.isSuccess()) {
             return null;
@@ -35,15 +35,15 @@ public class DeptHelper {
             return null;
         }
         Iterator<Element> it = outPut.element("departlist").elementIterator("depart");
-        List<AccessDept> deptList = new ArrayList<>();
-        AccessDept dept = null;
+        List<AccessDeptJyt> deptList = new ArrayList<>();
+        AccessDeptJyt dept = null;
         while (it.hasNext()) {
             Element ele = it.next();
-            dept = new AccessDept();
+            dept = new AccessDeptJyt();
             String pcode = ele.elementTextTrim("pcode");
-            if ("0".equals(pcode)) {
-                continue;
-            }
+//            if ("0".equals(pcode)) {
+//                continue;
+//            }
             String code = ele.elementTextTrim("code");
             String name = ele.elementTextTrim("name");
             String remark = ele.elementTextTrim("remark");
@@ -51,8 +51,8 @@ public class DeptHelper {
             String address = ele.elementTextTrim("address");
             String index = ele.elementTextTrim("index");
 
-            dept = new AccessDept();
-            dept.setAccessDeptId(pcode + "|" + code);
+            dept = new AccessDeptJyt();
+            dept.setAccessDeptId(code);
             dept.setDeptName(name);
             dept.setRemark(remark);
             dept.setResume(desc);
@@ -64,5 +64,14 @@ public class DeptHelper {
             deptList.add(dept);
         }
         return deptList;
+    }
+
+    public static List<AccessDeptJyt> mock(){
+        AccessDeptJyt dept = new AccessDeptJyt();
+        List<AccessDeptJyt> list = new ArrayList<>();
+        dept.setAccessDeptId("100");
+        dept.setDeptName("内科");
+        list.add(dept);
+        return list;
     }
 }

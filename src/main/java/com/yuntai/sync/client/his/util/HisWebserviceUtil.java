@@ -25,15 +25,10 @@ public class HisWebserviceUtil {
     public static final Logger LOGGER = LoggerFactory.getLogger(HisWebserviceUtil.class);
 
     /**
-     * HIS的webservice地址
-     */
-    public static final String hisServiceUrl = "http://192.168.91.184:8489/wstoapp";
-
-    /**
      * 请求HIS的webservice工具类
      *
-     * @param hisServiceUrl  his的webservice地址
-     * @param timeout        超时时间
+     * @param hisServiceUrl his的webservice地址
+     * @param timeout       超时时间
      * @return
      */
     public static HisResultBean getResponse(String hisServiceUrl, String bizxml, Integer timeout) {
@@ -54,7 +49,7 @@ public class HisWebserviceUtil {
         if (StringUtils.isBlank(responseXml)) {
             return new HisResultBean(false, HisResultBean.COED_FAILED, "HIS返回结果XML为空!", null);
         }
-        LOGGER.info("HIS返回xml:{}" , responseXml);
+        LOGGER.info("HIS返回xml:{}", responseXml);
         try {
             Element rootEle = DocumentHelper.parseText(responseXml).getRootElement();
             // 业务数据节点

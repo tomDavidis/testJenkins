@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <groupId>com.yuntai.sync</groupId>
-    <artifactId>yt-sync-client-bjazyy-600001</artifactId>
+    <artifactId>yt-sync-client-bjazyy</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <packaging>jar</packaging>
     <modelVersion>4.0.0</modelVersion>
@@ -21,15 +21,10 @@
 
     <dependencies>
         <!-- start yt-sync 项目内部依赖 jar -->
-        <!--<dependency>-->
-            <!--<groupId>com.yuntai.sync</groupId>-->
-            <!--<artifactId>yt-sync-client-for-jingyitong</artifactId>-->
-            <!--<version>1.0.0-SNAPSHOT</version>-->
-        <!--</dependency>-->
         <dependency>
             <groupId>com.yuntai.sync</groupId>
-            <artifactId>yt-sync-api</artifactId>
-            <version>1.0.0-20200508.025921-14</version>
+            <artifactId>yt-sync-client</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
         </dependency>
         <!-- end yt-sync 项目内部依赖 jar -->
 
@@ -69,6 +64,12 @@
             <version>1.6.1</version>
         </dependency>
 
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-all</artifactId>
+            <version>4.1.36.Final</version>
+        </dependency>
+
     </dependencies>
 
     <profiles>
@@ -83,9 +84,9 @@
             </activation>
         </profile>
         <profile>
-            <id>uta</id>
+            <id>uat</id>
             <properties>
-                <env>uta</env>
+                <env>uat</env>
             </properties>
         </profile>
         <profile>
@@ -97,7 +98,7 @@
     </profiles>
 
     <build>
-        <finalName>${project.artifactId}-${env}</finalName>
+        <finalName>sync-client-${env}</finalName>
         <filters>
             <filter>src/main/resources/deploy/${env}.properties</filter>
         </filters>

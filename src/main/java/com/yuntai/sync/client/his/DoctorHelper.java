@@ -1,7 +1,7 @@
 package com.yuntai.sync.client.his;
 
-import com.yuntai.sync.api.access.model.med.AccessDept;
-import com.yuntai.sync.api.access.model.med.AccessDoc;
+import com.yuntai.sync.api.access.model.jyt.AccessDeptJyt;
+import com.yuntai.sync.api.access.model.jyt.AccessDocJyt;
 import com.yuntai.sync.api.enums.YesOrNo;
 import com.yuntai.sync.client.his.util.HisResultBean;
 import com.yuntai.sync.client.his.util.HisWebserviceUtil;
@@ -25,20 +25,21 @@ public class DoctorHelper {
 
     private static final String DOCTOR_URL = "/doctors";
 
-    private static final String HOS_CODE = "T110481";
+    private static final String HOS_CODE = "T107871";
 
     public static Map<String, Set<String>> deptRDocMap = new HashMap<>();
 
-    public static List<AccessDoc> getDocList(List<AccessDept> deptList, String hisWebserviceUrl) {
-        List<AccessDoc> docList = new ArrayList<>();
-        AccessDoc virtrualDoctor = null;
-        for (AccessDept dept : deptList) {
-            String[] deptIdArgs = dept.getAccessDeptId().split("\\|");
-            String dept_code1 = deptIdArgs[0];
-            String dept_code2 = deptIdArgs[1];
+    public static List<AccessDocJyt> getDocList(List<AccessDeptJyt> deptList, String hisWebserviceUrl) {
+        List<AccessDocJyt> docList = new ArrayList<>();
+        AccessDocJyt virtrualDoctor = null;
+        for (AccessDeptJyt dept : deptList) {
+//            String[] deptIdArgs = dept.getAccessDeptId().split("\\|");
+//            String dept_code1 = deptIdArgs[0];
+//            String dept_code2 = deptIdArgs[1];
+            String accessDeptId = dept.getAccessDeptId();
             // 将门诊虚拟成医生
-            virtrualDoctor = new AccessDoc();
-            virtrualDoctor.setAccessDocId(dept.getAccessDeptId());
+            virtrualDoctor = new AccessDocJyt();
+            virtrualDoctor.setAccessDocId("XN_" + dept.getAccessDeptId());
             virtrualDoctor.setDocVirtualName(dept.getDeptName());
             virtrualDoctor.setDocName(dept.getDeptName());
             virtrualDoctor.setVirtualFlag(YesOrNo.YES.getCode());
@@ -47,21 +48,21 @@ public class DoctorHelper {
 
             StringBuilder sb = new StringBuilder();
             sb.append("<hos_code>" + HOS_CODE + "</hos_code>");
-            sb.append("<dept_code1>" + dept_code1 + "</dept_code1>");
-            sb.append("<dept_code2>" + dept_code2 + "</dept_code2>");
+            sb.append("<dept_code1>" + accessDeptId + "</dept_code1>");
+            sb.append("<dept_code2>" + accessDeptId + "</dept_code2>");
             HisResultBean hisResultBean = HisWebserviceUtil.getResponse(hisWebserviceUrl + DOCTOR_URL, sb.toString(),
                     60);
             if (!hisResultBean.isSuccess()) {
-                LOGGER.error("科室[{}]下没有获取到医生,HIS返回数据：{}", dept_code2, hisResultBean);
+                LOGGER.error("科室[{}]下没有获取到医生,HIS返回数据：{}", accessDeptId, hisResultBean);
                 continue;
             }
             Element outPut = hisResultBean.getResultEle();
             if (outPut == null) {
-                LOGGER.error("科室[{}]下没有获取到医生", dept_code2);
+                LOGGER.error("科室[{}]下没有获取到医生", accessDeptId);
                 continue;
             }
             Iterator<Element> it = outPut.element("doctor_list").elementIterator("doctor");
-            AccessDoc doctor = null;
+            AccessDocJyt doctor = null;
             while (it.hasNext()) {
                 Element ele = it.next();
                 String title = ele.elementTextTrim("title");
@@ -71,7 +72,7 @@ public class DoctorHelper {
                 String speciality = ele.elementTextTrim("speciality");
                 String price = ele.elementTextTrim("price");
 
-                doctor = new AccessDoc();
+                doctor = new AccessDocJyt();
                 doctor.setAccessDocId(doctorId);
                 doctor.setDocName(doctorName);
                 doctor.setDocVirtualName(doctorName);
@@ -94,7 +95,7 @@ public class DoctorHelper {
     }
 
 
-    /**
+    /**o
      * 将医生和门诊的关系加入缓存
      *
      * @param docId
@@ -128,6 +129,16 @@ public class DoctorHelper {
             //doctor.setMediLevel(6);
         }
         return null;
+    }
+
+    public static List<AccessDocJyt> mock(){
+        AccessDocJyt docJyt = new AccessDocJyt();
+        docJyt.setAccessDocId("200");
+        docJyt.setDocName("张三丰");
+        docJyt.setVirtualFlag("N");
+        List<AccessDocJyt> list = new ArrayList<>();
+        list.add(docJyt);
+        return list;
     }
 }
 

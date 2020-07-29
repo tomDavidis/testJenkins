@@ -1,9 +1,13 @@
 package com.yuntai.sync.client.access.service.impl;
 
-import com.yuntai.sync.api.access.model.*;
-import com.yuntai.sync.api.enums.*;
-import com.yuntai.sync.client.access.service.AccessPullService;
-import com.yuntai.sync.client.his.*;
+import com.yuntai.sync.api.access.model.AccessData;
+import com.yuntai.sync.api.access.model.jyt.*;
+import com.yuntai.sync.api.enums.DataModeType;
+import com.yuntai.sync.api.enums.jyt.*;
+import com.yuntai.sync.client.access.service.jyt.AccessJytPullService;
+import com.yuntai.sync.client.his.DeptHelper;
+import com.yuntai.sync.client.his.DoctorHelper;
+import com.yuntai.sync.client.his.ScheduleHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,84 +26,88 @@ import java.util.List;
  * @Copyright: 版权归 HSYUNTAI 所有
  */
 @Service
-public class AccessPullServiceImpl implements AccessPullService {
+public class AccessPullServiceImpl implements AccessJytPullService {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(AccessSyncServiceImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AccessSyncServiceImpl.class);
 
-	@Value("${his.webservice.url}")
-	private String hisWebserviceUrl;
+    @Value("${his.webservice.url}")
+    private String hisWebserviceUrl;
 
-	@Value("${sync.sch.days}")
-	private Integer syncSchDays;
+    @Value("${sync.sch.days}")
+    private Integer syncSchDays;
 
-	// 科室缓存
-	private List<AccessDept> tempDeptList;
-	
-    @Override
-    public AccessData<AccessDept, UpdateDeptField> getDeptFromAccess(Long hosId, DataModeType dataModeType) {
-		tempDeptList = DeptHelper.getDeptListFromHos(hisWebserviceUrl);
-		AccessData<AccessDept, UpdateDeptField> accessData = new AccessData<>();
-		accessData.setDataModeType(dataModeType);
-		accessData.settList(tempDeptList);
-		accessData.setUpdateFieldList(Arrays.asList(new UpdateDeptField[]{UpdateDeptField.deptName,
-				UpdateDeptField.sort, UpdateDeptField.addr}));
-		return accessData;
-    }
+    // 科室缓存
+    private List<AccessDeptJyt> tempDeptList;
+
 
     @Override
-    public AccessData<AccessDoc, UpdateDocField> getDocFromAccess(Long hosId, DataModeType dataModeType) {
-		AccessData<AccessDoc, UpdateDocField> accessData = new AccessData<>();
-		accessData.setDataModeType(dataModeType);
-		accessData.settList(DoctorHelper.getDocList(tempDeptList, hisWebserviceUrl));
-		accessData.setUpdateFieldList(Arrays.asList(new UpdateDocField[]{UpdateDocField.docName,
-				UpdateDocField.docVirtualName, UpdateDocField.mediLevel, UpdateDocField.goodAt,
-				UpdateDocField.titleShown}));
-		return accessData;
-    }
-
-    @SuppressWarnings("rawtypes")
-	@Override
-    public AccessData<AccessDeptRDoc, Enum> getDeptRDocFromAccess(Long hosId, DataModeType dataModeType) {
-		if (DoctorHelper.deptRDocMap.isEmpty()) {
-			return null;
-		}
-		List<AccessDeptRDoc> accessDeptRDocList = new ArrayList<>();
-		AccessDeptRDoc deptRDoc = null;
-		for (String doctorId : DoctorHelper.deptRDocMap.keySet()) {
-			for (String deptId : DoctorHelper.deptRDocMap.get(doctorId)) {
-				deptRDoc = new AccessDeptRDoc();
-				deptRDoc.setAccessDeptId(deptId);
-				deptRDoc.setAccessDocId(doctorId);
-				accessDeptRDocList.add(deptRDoc);
-			}
-		}
-		AccessData<AccessDeptRDoc, Enum> accessData = new AccessData<>();
-		accessData.setDataModeType(dataModeType);
-		accessData.settList(accessDeptRDocList);
-		return accessData;
+    public AccessData<AccessDeptJyt, UpdateDeptJytField> getDeptJytFromAccess(Long aLong, DataModeType dataModeType) {
+        tempDeptList = DeptHelper.getDeptListFromHos(hisWebserviceUrl);
+        AccessData<AccessDeptJyt, UpdateDeptJytField> accessData = new AccessData<>();
+        accessData.setDataModeType(dataModeType);
+        accessData.setTList(tempDeptList);
+        accessData.setUpdateFieldList(Arrays.asList(new UpdateDeptJytField[]{UpdateDeptJytField.deptName,
+				UpdateDeptJytField.sort, UpdateDeptJytField.addr}));
+        return accessData;
     }
 
     @Override
-    public AccessData<AccessSch, UpdateSchField> getSchFromAccess(Long hosId, DataModeType dataModeType) {
-		AccessData<AccessSch, UpdateSchField> accessData = new AccessData<>();
-		accessData.setDataModeType(dataModeType);
-		accessData.settList(ScheduleHelper.getScheduleList(this.tempDeptList, this.syncSchDays, hisWebserviceUrl));
-		accessData.setUpdateFieldList(Arrays.asList(UpdateSchField.values()));
-		return accessData;
+    public AccessData<AccessDocJyt, UpdateDocJytField> getDocJytFromAccess(Long aLong, DataModeType dataModeType) {
+        AccessData<AccessDocJyt, UpdateDocJytField> accessData = new AccessData<>();
+        accessData.setDataModeType(dataModeType);
+        accessData.setTList(DoctorHelper.getDocList(tempDeptList, hisWebserviceUrl));
+        accessData.setUpdateFieldList(Arrays.asList(new UpdateDocJytField[]{UpdateDocJytField.docVirtualName,
+				UpdateDocJytField.docVirtualName, UpdateDocJytField.mediLevel, UpdateDocJytField.goodAt,
+				UpdateDocJytField.titleShown}));
+        return accessData;
     }
 
-	@Override
-	public AccessData<AccessDvi, UpdateDviField> getDviFromAccess(Long hosId, DataModeType dataModeType) {
-		AccessData<AccessDvi, UpdateDviField> accessData = new AccessData<>();
-		try {
-			accessData.setDataModeType(dataModeType);
-			accessData.settList(null);
-			//accessData.setUpdateFieldList(Arrays.asList(UpdateDviField.values()));
-			accessData.settList(DviHelper.getDviList(tempDeptList, syncSchDays, hisWebserviceUrl));
-		} finally {
-			tempDeptList = null;
-		}
-		return accessData;
-	}
+    @Override
+    public AccessData<AccessDeptRDocJyt, Enum> getDeptRDocJytFromAccess(Long aLong, DataModeType dataModeType) {
+        if (DoctorHelper.deptRDocMap.isEmpty()) {
+            return null;
+        }
+        List<AccessDeptRDocJyt> accessDeptRDocList = new ArrayList<>();
+        AccessDeptRDocJyt deptRDoc = null;
+        for (String doctorId : DoctorHelper.deptRDocMap.keySet()) {
+            for (String deptId : DoctorHelper.deptRDocMap.get(doctorId)) {
+                deptRDoc = new AccessDeptRDocJyt();
+                deptRDoc.setAccessDeptId(deptId);
+                deptRDoc.setAccessDocId(doctorId);
+                accessDeptRDocList.add(deptRDoc);
+            }
+        }
+        AccessData<AccessDeptRDocJyt, Enum> accessData = new AccessData<>();
+        accessData.setDataModeType(dataModeType);
+        accessData.setTList(accessDeptRDocList);
+        return accessData;
+    }
 
+    @Override
+    public AccessData<AccessSchJyt, UpdateSchJytField> getSchJytFromAccess(Long aLong, DataModeType dataModeType) {
+        AccessData<AccessSchJyt, UpdateSchJytField> accessData = new AccessData<>();
+        accessData.setDataModeType(dataModeType);
+        accessData.setTList(ScheduleHelper.getScheduleList(this.tempDeptList, this.syncSchDays, hisWebserviceUrl));
+        accessData.setUpdateFieldList(Arrays.asList(UpdateSchJytField.values()));
+        return accessData;
+    }
+
+    @Override
+    public AccessData<AccessDviJyt, UpdateDviJytField> getDviJytFromAccess(Long aLong, DataModeType dataModeType) {
+        AccessData<AccessDviJyt, UpdateDviJytField> accessData = new AccessData<>();
+        try {
+            accessData.setDataModeType(dataModeType);
+            accessData.setTList(null);
+//   accessData.settList(DviHelper.getDviList(tempDeptList, syncSchDays, hisWebserviceUrl));
+            accessData.setUpdateFieldList(Arrays.asList(UpdateDviJytField.values()));
+        } finally {
+            tempDeptList = null;
+        }
+        return accessData;
+    }
+
+    @Override
+    public AccessData<AccessOltSchJyt, UpdateOltSchJytField> getOltSchJytFromAccess(Long aLong, DataModeType dataModeType) {
+        return null;
+    }
 }
